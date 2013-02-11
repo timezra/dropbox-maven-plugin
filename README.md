@@ -9,16 +9,27 @@ In order to use this Maven plugin, you will need to configure your pom.xml (or p
 
 <code lang="xml">
     &lt;pluginRepositories&gt;
+
         &lt;pluginRepository&gt;
+
             &lt;id&gt;tims-repo&lt;/id&gt;
+
             &lt;url&gt;http://timezra.github.com/maven/releases&lt;/url&gt;
+
             &lt;releases&gt;
+
                 &lt;enabled&gt;true&lt;/enabled&gt;
+
             &lt;/releases&gt;
+
             &lt;snapshots&gt;
+
                 &lt;enabled&gt;false&lt;/enabled&gt;
+
             &lt;/snapshots&gt;
+
         &lt;/pluginRepository&gt;
+
     &lt;/pluginRepositories&gt;
 </code>
 
