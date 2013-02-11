@@ -8,29 +8,18 @@ Configuration
 In order to use this Maven plugin, you will need to configure your pom.xml (or proxy repository) to point to the repository at http://timezra.github.com/maven/snapshots
 
 <code lang="xml">
-    &lt;pluginRepositories&gt;
-
-        &lt;pluginRepository&gt;
-
-            &lt;id&gt;tims-repo&lt;/id&gt;
-
-            &lt;url&gt;http://timezra.github.com/maven/releases&lt;/url&gt;
-
-            &lt;releases&gt;
-
-                &lt;enabled&gt;true&lt;/enabled&gt;
-
-            &lt;/releases&gt;
-
-            &lt;snapshots&gt;
-
-                &lt;enabled&gt;false&lt;/enabled&gt;
-
-            &lt;/snapshots&gt;
-
-        &lt;/pluginRepository&gt;
-
-    &lt;/pluginRepositories&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;pluginRepositories&gt;&#xA;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;pluginRepository&gt;&#xA;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;id&gt;tims-repo&lt;/id&gt;&#xA;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;url&gt;http://timezra.github.com/maven/releases&lt;/url&gt;&#xA;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;releases&gt;&#xA;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;enabled&gt;true&lt;/enabled&gt;&#xA;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/releases&gt;&#xA;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;snapshots&gt;&#xA;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;enabled&gt;false&lt;/enabled&gt;&#xA;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/snapshots&gt;&#xA;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/pluginRepository&gt;&#xA;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/pluginRepositories&gt;
 </code>
 
 Usage
