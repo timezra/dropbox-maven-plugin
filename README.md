@@ -7,6 +7,7 @@ Configuration
 ----------------------------------------------------
 In order to use this Maven plugin, you will need to configure your pom.xml (or proxy repository) to point to the repository at http://timezra.github.com/maven/snapshots
 
+<code lang="xml">
     &lt;pluginRepositories&gt;
         &lt;pluginRepository&gt;
             &lt;id&gt;tims-repo&lt;/id&gt;
@@ -19,6 +20,7 @@ In order to use this Maven plugin, you will need to configure your pom.xml (or p
             &lt;/snapshots&gt;
         &lt;/pluginRepository&gt;
     &lt;/pluginRepositories&gt;
+</code>
 
 Usage
 ----------------------------------------------------
