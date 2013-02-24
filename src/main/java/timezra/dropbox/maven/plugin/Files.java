@@ -21,10 +21,12 @@
  */
 package timezra.dropbox.maven.plugin;
 
+import static org.codehaus.plexus.util.IOUtil.close;
+
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -34,41 +36,56 @@ import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.exception.DropboxException;
 import com.dropbox.client2.session.Session;
 
-@Mojo(name = FilesPut.API_METHOD)
-public class FilesPut extends DropboxMojo {
+@Mojo(name = Files.API_METHOD)
+public class Files extends DropboxMojo {
 
-    static final String API_METHOD = "files_put";
-
-    @Parameter(defaultValue = "true")
-    boolean overwrite;
-
-    @Parameter
-    String parent_rev;
+    static final String API_METHOD = "files";
 
     @Parameter(required = true)
-    File file;
+    String request_type;
+
+    @Parameter
+    String rev;
 
     @Parameter(required = true)
     String path;
 
-    public FilesPut() {
+    @Parameter
+    File file;
+
+    public Files() {
         super(API_METHOD);
     }
 
-    FilesPut(final DropboxFactory<? extends Session> dropboxFactory) {
+    Files(final DropboxFactory<? extends Session> dropboxFactory) {
         super(API_METHOD, dropboxFactory);
     }
 
     @Override
     protected final void call(final DropboxAPI<? extends Session> dropbox) throws MojoExecutionException {
-        try (InputStream in = new FileInputStream(file)) {
-            if (overwrite) {
-                dropbox.putFileOverwrite(path, in, file.length(), progressListener);
+        OutputStream out = null;
+        boolean theFileShouldBeClosed = false;
+        try {
+            if (file == null) {
+                out = System.out;
             } else {
-                dropbox.putFile(path, in, file.length(), parent_rev, progressListener);
+                if (!file.exists()) {
+                    final File parentFile = file.getParentFile();
+                    if (parentFile != null) {
+                        parentFile.mkdirs();
+                    }
+                    file.createNewFile();
+                }
+                out = new FileOutputStream(file);
+                theFileShouldBeClosed = true;
             }
+            dropbox.getFile(path, rev, out, progressListener);
         } catch (final IOException | DropboxException e) {
             throw new DropboxMojoExecutionException(e);
+        } finally {
+            if (theFileShouldBeClosed) {
+                close(out);
+            }
         }
     }
 }
