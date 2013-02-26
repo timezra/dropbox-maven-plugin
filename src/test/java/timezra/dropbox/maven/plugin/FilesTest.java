@@ -32,7 +32,7 @@ public class FilesTest extends DropboxMojoTest<Files> {
     private static final String REV = "1234";
 
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
     public void should_output_to_the_console_by_default() throws MojoExecutionException, MojoFailureException,
@@ -92,7 +92,7 @@ public class FilesTest extends DropboxMojoTest<Files> {
     }
 
     @Override
-    protected Files createDropboxMojo(final DropboxFactory<Session> dropboxFactory) {
+    protected final Files createDropboxMojo(final DropboxFactory<Session> dropboxFactory) {
         final Files files = new Files(dropboxFactory);
         files.path = PATH;
         files.rev = REV;

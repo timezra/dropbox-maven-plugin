@@ -41,7 +41,7 @@ public abstract class DropboxMojoTest<MOJO extends DropboxMojo> {
     protected DropboxAPI<Session> dropboxAPI;
 
     @Mock
-    private Log log;
+    protected Log log;
 
     protected MOJO dropboxMojo;
 

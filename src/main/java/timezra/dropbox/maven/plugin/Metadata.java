@@ -21,68 +21,57 @@
  */
 package timezra.dropbox.maven.plugin;
 
-import static org.codehaus.plexus.util.IOUtil.close;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.json.simple.JSONValue;
 
 import com.dropbox.client2.DropboxAPI;
+import com.dropbox.client2.DropboxAPI.Entry;
 import com.dropbox.client2.exception.DropboxException;
 import com.dropbox.client2.session.Session;
 
-@Mojo(name = Files.API_METHOD)
-public class Files extends DropboxMojo {
+@Mojo(name = Metadata.API_METHOD)
+public class Metadata extends DropboxMojo {
 
-    static final String API_METHOD = "files";
-
-    @Parameter
-    String rev;
+    static final String API_METHOD = "metadata";
 
     @Parameter(required = true)
     String path;
 
     @Parameter
-    File file;
+    int file_limit = 10000;
 
-    public Files() {
+    @Parameter
+    String hash;
+
+    @Parameter
+    boolean list = true;
+
+    @Parameter
+    String rev;
+
+    public Metadata() {
         super(API_METHOD);
     }
 
-    Files(final DropboxFactory<? extends Session> dropboxFactory) {
+    Metadata(final DropboxFactory<? extends Session> dropboxFactory) {
         super(API_METHOD, dropboxFactory);
     }
 
     @Override
     protected final void call(final DropboxAPI<? extends Session> dropbox) throws MojoExecutionException {
-        OutputStream out = null;
-        boolean theFileShouldBeClosed = false;
         try {
-            if (file == null) {
-                out = System.out;
-            } else {
-                if (!file.exists()) {
-                    final File parentFile = file.getParentFile();
-                    if (parentFile != null) {
-                        parentFile.mkdirs();
-                    }
-                    file.createNewFile();
-                }
-                out = new FileOutputStream(file);
-                theFileShouldBeClosed = true;
+            final Entry metadata = dropbox.metadata(path, file_limit, hash, list, rev);
+            final Map<?, ?> simplified = Simplifier.simplify(metadata);
+            if (simplified != null) {
+                simplified.remove("JsonExtractor");
+                getLog().info(JSONValue.toJSONString(simplified));
             }
-            dropbox.getFile(path, rev, out, progressListener);
-        } catch (final IOException | DropboxException e) {
+        } catch (final DropboxException | IllegalArgumentException | IllegalAccessException e) {
             throw new DropboxMojoExecutionException(e);
-        } finally {
-            if (theFileShouldBeClosed) {
-                close(out);
-            }
         }
     }
 }

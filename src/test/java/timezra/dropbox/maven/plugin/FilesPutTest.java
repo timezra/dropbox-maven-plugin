@@ -69,7 +69,7 @@ public class FilesPutTest extends DropboxMojoTest<FilesPut> {
     }
 
     @Override
-    protected FilesPut createDropboxMojo(final DropboxFactory<Session> dropboxFactory) {
+    protected final FilesPut createDropboxMojo(final DropboxFactory<Session> dropboxFactory) {
         final FilesPut filesPut = new FilesPut(dropboxFactory);
         filesPut.path = PATH;
         filesPut.file = FILE;
