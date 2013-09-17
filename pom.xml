@@ -4,7 +4,7 @@
     <groupId>timezra.maven</groupId>
     <artifactId>dropbox-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>1.7.4</version>
+    <version>1.7.5-SNAPSHOT</version>
     <name>Dropbox Maven Plugin</name>
     <url>http://maven.apache.org</url>
 
@@ -135,7 +135,7 @@
         <dependency>
             <groupId>com.dropbox.core</groupId>
             <artifactId>dropbox-core-sdk</artifactId>
-            <version>1.7.4</version>
+            <version>1.7.5</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
