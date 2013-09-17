@@ -5,7 +5,7 @@ This project provides a bridge between maven and the dropbox-java-sdk (https://g
 
 Configuration
 ----------------------------------------------------
-In order to use this Maven plugin, you will need to configure your pom.xml (or proxy repository) to point to the repository at http://timezra.github.com/maven/snapshots
+In order to use this Maven plugin, you will need to configure your pom.xml (or proxy repository) to point to the repository at http://timezra.github.com/maven/releases
 
 <code lang="xml">
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;pluginRepositories&gt;  
