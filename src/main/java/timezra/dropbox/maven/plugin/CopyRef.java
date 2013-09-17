@@ -21,8 +21,33 @@
  */
 package timezra.dropbox.maven.plugin;
 
-import com.dropbox.core.DbxClient;
+import static org.codehaus.plexus.util.StringUtils.defaultString;
 
-public interface DropboxFactory {
-    DbxClient create(final String clientIdentifier, final String accessToken);
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
+import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxException;
+
+@Mojo(name = CopyRef.API_METHOD)
+public class CopyRef extends DropboxMojo {
+
+    static final String API_METHOD = "copy_ref";
+
+    @Parameter(required = true, property = "path")
+    String path;
+
+    public CopyRef() {
+        super(API_METHOD);
+    }
+
+    CopyRef(final DropboxFactory dropboxFactory) {
+        super(API_METHOD, dropboxFactory);
+    }
+
+    @Override
+    protected final void call(final DbxClient client, final ProgressMonitor pm) throws DbxException {
+        pm.begin(1);
+        getLog().info(defaultString("copy_ref=" + client.createCopyRef(path), "no file at that path"));
+    }
 }

@@ -25,68 +25,55 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import com.dropbox.core.DbxClient;
-import com.dropbox.core.DbxClient.Uploader;
 import com.dropbox.core.DbxException;
-import com.dropbox.core.DbxWriteMode;
 
-@Mojo(name = FilesPut.API_METHOD)
-public class FilesPut extends DropboxMojo {
+@Mojo(name = ChunkedUpload.API_METHOD)
+public class ChunkedUpload extends DropboxMojo {
 
-    static final String API_METHOD = "files_put";
+    static final String API_METHOD = "chunked_upload";
 
-    @Parameter(defaultValue = "16384", property = "bufferSize")
-    int bufferSize;
-
-    @Parameter(defaultValue = "true", property = "overwrite")
-    boolean overwrite;
-
-    @Parameter(property = "parent_rev")
-    String parent_rev;
+    @Parameter(defaultValue = "4194304", property = "chunkSize")
+    int chunkSize;
 
     @Parameter(required = true, property = "file")
     File file;
 
-    @Parameter(required = true, property = "path")
-    String path;
+    @Parameter(property = "upload_id")
+    String upload_id;
 
-    public FilesPut() {
+    @Parameter(defaultValue = "0", property = "offset")
+    long offset;
+
+    public ChunkedUpload() {
         super(API_METHOD);
     }
 
-    FilesPut(final DropboxFactory dropboxFactory) {
+    ChunkedUpload(final DropboxFactory dropboxFactory) {
         super(API_METHOD, dropboxFactory);
-    }
-
-    private void close(final Uploader uploader) {
-        if (uploader != null) {
-            uploader.close();
-        }
     }
 
     @Override
     protected final void call(final DbxClient client, final ProgressMonitor pm) throws IOException, DbxException {
-        final long fileLength = file.length();
-        Uploader uploader = null;
-        pm.begin(fileLength);
-        final DbxWriteMode writeMode = overwrite ? DbxWriteMode.force() : DbxWriteMode.update(parent_rev);
+        final int dataSize = (int) Math.min(chunkSize, file.length() - offset);
+        pm.begin(file.length());
+        final byte[] data = new byte[dataSize];
         try (InputStream in = new FileInputStream(file)) {
-            uploader = client.startUploadFile(path, writeMode, fileLength);
-            final OutputStream body = uploader.getBody();
-            final byte[] buffer = new byte[bufferSize];
-            int read = 0;
-            while ((read = in.read(buffer)) > -1) {
-                body.write(buffer, 0, read);
-                pm.worked(read);
+            in.skip(offset);
+            final int read = in.read(data);
+            if (upload_id == null) {
+                getLog().info("upload_id=" + client.chunkedUploadFirst(data, 0, read));
+            } else {
+                final long correctOffset = client.chunkedUploadAppend(upload_id, offset, data);
+                if (correctOffset != -1) {
+                    getLog().error("expected the offset to be " + correctOffset);
+                }
             }
-            uploader.finish();
-        } finally {
-            close(uploader);
+            pm.worked(offset + read);
         }
     }
 }

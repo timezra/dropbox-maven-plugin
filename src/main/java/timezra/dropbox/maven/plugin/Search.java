@@ -21,8 +21,37 @@
  */
 package timezra.dropbox.maven.plugin;
 
-import com.dropbox.core.DbxClient;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
-public interface DropboxFactory {
-    DbxClient create(final String clientIdentifier, final String accessToken);
+import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxEntry;
+import com.dropbox.core.DbxException;
+
+@Mojo(name = Search.API_METHOD)
+public class Search extends DropboxMojo {
+
+    static final String API_METHOD = "search";
+
+    @Parameter(required = true, property = "path")
+    String path;
+
+    @Parameter(required = true, property = "query")
+    String query;
+
+    public Search() {
+        super(API_METHOD);
+    }
+
+    Search(final DropboxFactory dropboxFactory) {
+        super(API_METHOD, dropboxFactory);
+    }
+
+    @Override
+    protected final void call(final DbxClient client, final ProgressMonitor pm) throws DbxException {
+        pm.begin(1);
+        for (final DbxEntry entry : client.searchFileAndFolderNames(path, query)) {
+            getLog().info(entry.toString());
+        }
+    }
 }

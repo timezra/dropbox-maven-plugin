@@ -21,8 +21,42 @@
  */
 package timezra.dropbox.maven.plugin;
 
-import com.dropbox.core.DbxClient;
+import java.text.SimpleDateFormat;
 
-public interface DropboxFactory {
-    DbxClient create(final String clientIdentifier, final String accessToken);
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
+import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxException;
+import com.dropbox.core.DbxUrlWithExpiration;
+
+@Mojo(name = Media.API_METHOD)
+public class Media extends DropboxMojo {
+
+    private static final String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss Z"; // rfc822
+
+    static final String API_METHOD = "media";
+
+    @Parameter(required = true, property = "path")
+    String path;
+
+    public Media() {
+        super(API_METHOD);
+    }
+
+    Media(final DropboxFactory dropboxFactory) {
+        super(API_METHOD, dropboxFactory);
+    }
+
+    @Override
+    protected final void call(final DbxClient client, final ProgressMonitor pm) throws DbxException {
+        pm.begin(1);
+        final DbxUrlWithExpiration urlWithExpiration = client.createTemporaryDirectUrl(path);
+        if (urlWithExpiration == null) {
+            getLog().info("no file at that path");
+        } else {
+            getLog().info("url=" + urlWithExpiration.url);
+            getLog().info("expires=" + new SimpleDateFormat(DATE_FORMAT).format(urlWithExpiration.expires));
+        }
+    }
 }

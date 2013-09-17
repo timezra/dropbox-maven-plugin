@@ -19,10 +19,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package timezra.dropbox.maven.plugin;
+package timezra.dropbox.maven.plugin.fileops;
+
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
+import timezra.dropbox.maven.plugin.DropboxFactory;
+import timezra.dropbox.maven.plugin.DropboxMojo;
+import timezra.dropbox.maven.plugin.ProgressMonitor;
 
 import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxException;
 
-public interface DropboxFactory {
-    DbxClient create(final String clientIdentifier, final String accessToken);
+@Mojo(name = CreateFolder.API_METHOD)
+public class CreateFolder extends DropboxMojo {
+
+    static final String API_METHOD = "create_folder";
+
+    @Parameter(required = true, property = "path")
+    String path;
+
+    public CreateFolder() {
+        super(API_METHOD);
+    }
+
+    CreateFolder(final DropboxFactory dropboxFactory) {
+        super(API_METHOD, dropboxFactory);
+    }
+
+    @Override
+    protected final void call(final DbxClient client, final ProgressMonitor pm) throws DbxException {
+        pm.begin(1);
+        if (client.createFolder(path) == null) {
+            getLog().error("already a folder at the given destination");
+        }
+    }
 }

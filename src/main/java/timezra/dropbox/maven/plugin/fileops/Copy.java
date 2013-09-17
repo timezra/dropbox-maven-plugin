@@ -19,10 +19,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package timezra.dropbox.maven.plugin;
+package timezra.dropbox.maven.plugin.fileops;
+
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
+import timezra.dropbox.maven.plugin.DropboxFactory;
+import timezra.dropbox.maven.plugin.DropboxMojo;
+import timezra.dropbox.maven.plugin.ProgressMonitor;
 
 import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxException;
 
-public interface DropboxFactory {
-    DbxClient create(final String clientIdentifier, final String accessToken);
+@Mojo(name = Copy.API_METHOD)
+public class Copy extends DropboxMojo {
+
+    static final String API_METHOD = "copy";
+
+    @Parameter(required = true, property = "to_path")
+    String to_path;
+
+    @Parameter(property = "from_path")
+    String from_path;
+
+    @Parameter(property = "from_copy_ref")
+    String from_copy_ref;
+
+    public Copy() {
+        super(API_METHOD);
+    }
+
+    Copy(final DropboxFactory dropboxFactory) {
+        super(API_METHOD, dropboxFactory);
+    }
+
+    @Override
+    protected final void call(final DbxClient client, final ProgressMonitor pm) throws DbxException {
+        pm.begin(1);
+        if (from_copy_ref == null) {
+            client.copy(from_path, to_path);
+        } else {
+            client.copyFromCopyRef(from_copy_ref, to_path);
+        }
+    }
 }

@@ -21,8 +21,38 @@
  */
 package timezra.dropbox.maven.plugin;
 
-import com.dropbox.core.DbxClient;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
-public interface DropboxFactory {
-    DbxClient create(final String clientIdentifier, final String accessToken);
+import timezra.dropbox.maven.plugin.client.DbxClientWrapper;
+
+import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxEntry.File;
+import com.dropbox.core.DbxException;
+
+@Mojo(name = Restore.API_METHOD)
+public class Restore extends DropboxMojo {
+
+    static final String API_METHOD = "restore";
+
+    @Parameter(required = true, property = "path")
+    String path;
+
+    @Parameter(required = true, property = "rev")
+    String rev;
+
+    public Restore() {
+        super(API_METHOD);
+    }
+
+    Restore(final DropboxFactory dropboxFactory) {
+        super(API_METHOD, dropboxFactory);
+    }
+
+    @Override
+    protected final void call(final DbxClient client, final ProgressMonitor pm) throws DbxException {
+        pm.begin(1);
+        final File restoredFile = new DbxClientWrapper(client).restoreFile(path, rev);
+        getLog().info(restoredFile == null ? "path/rev not found" : restoredFile.toString());
+    }
 }

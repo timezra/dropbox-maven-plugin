@@ -26,6 +26,50 @@ Usage
 ----------------------------------------------------
 Work in progress....
 
-For now, please use 'mvn timezra.maven:dropbox-maven-plugin:1.5.3-SNAPSHOT:help' to find out usage information.
+For now, please use 'mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:help' to find out usage information.
 
+For the most part, available operations and their parameters follow the core REST API at <https://www.dropbox.com/developers/core/docs>
 
+### Examples: ###
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:files_put -Dverbose=true -Dpath=/{A FILE} -Dfile={A FILE} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:files -Dverbose=true -Dpath=/{A FILE} -Dfile={A FILE} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:metadata -Dverbose=true -Dpath=/ -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:delta -Dverbose=true -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:delta -Dverbose=true -Dcursor={A CURSOR} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:revisions -Dverbose=true -Dpath=/{A FILE} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:restore -Dverbose=true -Dpath=/{A FILE} -Drev={A REVISION} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:search -Dverbose=true -Dpath=/ -Dquery={A QUERY} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:shares -Dverbose=true -Dpath=/{A FILE} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:media -Dverbose=true -Dpath=/{A FILE} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:copy_ref -Dverbose=true -Dpath=/{A FILE} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:thumbnails -Dverbose=true -Dpath=/{AN IMAGE FILE} -Dformat={PNG OR JPEG} -Dfile={AN IMAGE FILE} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:chunked_upload -Dverbose=true -Dfile={A FILE} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:chunked_upload -Dverbose=true -Dfile={A FILE} -Dupload_id={AN UPLOAD ID} -Doffset={A CHUNK SIZE} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:commit_chunked_upload -Dverbose=true -Dpath=/{A FILE} -Dupload_id={AN UPLOAD ID} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:copy -Dverbose=true -Dfrom_path=/{A FILE} -Dto_path=/{ANOTHER FILE} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:copy -Dverbose=true -Dfrom_copy_ref={A COPY REF} -Dto_path=/{ANOTHER FILE} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:create_folder -Dverbose=true -Dpath=/{A FOLDER} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:delete -Dverbose=true -Dpath=/{A FOLDER} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:move -Dverbose=true -Dfrom_path=/{A FILE} -Dto_path=/{ANOTHER FILE} -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e
+
+        $ mvn timezra.maven:dropbox-maven-plugin:1.7.4-SNAPSHOT:info -Dverbose=true -DclientIdentifier={MY APP} -DaccessToken={MY ACCESS TOKEN} -e

@@ -31,19 +31,14 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.IOUtil;
 
 import com.dropbox.core.DbxClient;
-import com.dropbox.core.DbxClient.Downloader;
 import com.dropbox.core.DbxException;
+import com.dropbox.core.DbxThumbnailFormat;
+import com.dropbox.core.DbxThumbnailSize;
 
-@Mojo(name = Files.API_METHOD)
-public class Files extends DropboxMojo {
+@Mojo(name = Thumbnails.API_METHOD)
+public class Thumbnails extends DropboxMojo {
 
-    static final String API_METHOD = "files";
-
-    @Parameter(defaultValue = "16384", property = "bufferSize")
-    int bufferSize;
-
-    @Parameter(property = "rev")
-    String rev;
+    static final String API_METHOD = "thumbnails";
 
     @Parameter(required = true, property = "path")
     String path;
@@ -51,25 +46,29 @@ public class Files extends DropboxMojo {
     @Parameter(property = "file")
     File file;
 
-    public Files() {
+    @Parameter(defaultValue = "jpeg", property = "format")
+    String format;
+
+    @Parameter(defaultValue = "s", property = "size")
+    String size;
+
+    @Parameter(property = "rev")
+    String rev;
+
+    public Thumbnails() {
         super(API_METHOD);
     }
 
-    Files(final DropboxFactory dropboxFactory) {
+    Thumbnails(final DropboxFactory dropboxFactory) {
         super(API_METHOD, dropboxFactory);
     }
 
-    private void close(final Downloader downloader) {
-        if (downloader != null) {
-            downloader.close();
-        }
-    }
-
     @Override
-    protected final void call(final DbxClient client, final ProgressMonitor pm) throws IOException, DbxException {
-        Downloader downloader = null;
+    protected final void call(final DbxClient client, final ProgressMonitor pm) throws DbxException, IOException {
+        pm.begin(1);
         OutputStream out = null;
         boolean theFileShouldBeClosed = false;
+
         try {
             if (file == null) {
                 out = System.out;
@@ -84,19 +83,45 @@ public class Files extends DropboxMojo {
                 out = new FileOutputStream(file);
                 theFileShouldBeClosed = true;
             }
-            downloader = client.startGetFile(path, rev);
-            pm.begin(downloader.metadata.numBytes);
-            final byte[] buffer = new byte[bufferSize];
-            int read = 0;
-            while ((read = downloader.body.read(buffer)) != -1) {
-                pm.worked(read);
-                out.write(buffer, 0, read);
+            final com.dropbox.core.DbxEntry.File thumbnail = client.getThumbnail(size(), format(), path, rev, out);
+            if (thumbnail == null) {
+                file.delete();
+                getLog().info("no file at that path");
+            } else {
+                getLog().info(thumbnail.toString());
             }
         } finally {
-            close(downloader);
             if (theFileShouldBeClosed) {
                 IOUtil.close(out);
             }
+        }
+    }
+
+    private DbxThumbnailFormat format() {
+        switch (format) {
+        case "jpeg":
+            return DbxThumbnailFormat.JPEG;
+        case "png":
+            return DbxThumbnailFormat.PNG;
+        default:
+            return DbxThumbnailFormat.bestForFileName(path, DbxThumbnailFormat.JPEG);
+        }
+    }
+
+    private DbxThumbnailSize size() {
+        switch (size) {
+        case "xs":
+            return DbxThumbnailSize.w32h32;
+        case "s":
+            return DbxThumbnailSize.w64h64;
+        case "m":
+            return DbxThumbnailSize.w128h128;
+        case "l":
+            return DbxThumbnailSize.w640h480;
+        case "xl":
+            return DbxThumbnailSize.w1024h768;
+        default:
+            throw new IllegalArgumentException("Unknown size " + size);
         }
     }
 }

@@ -21,8 +21,36 @@
  */
 package timezra.dropbox.maven.plugin;
 
-import com.dropbox.core.DbxClient;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
-public interface DropboxFactory {
-    DbxClient create(final String clientIdentifier, final String accessToken);
+import timezra.dropbox.maven.plugin.client.DbxClientWrapper;
+
+import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxEntry.File;
+import com.dropbox.core.DbxException;
+
+@Mojo(name = Revisions.API_METHOD)
+public class Revisions extends DropboxMojo {
+
+    static final String API_METHOD = "revisions";
+
+    @Parameter(required = true, property = "path")
+    String path;
+
+    public Revisions() {
+        super(API_METHOD);
+    }
+
+    Revisions(final DropboxFactory dropboxFactory) {
+        super(API_METHOD, dropboxFactory);
+    }
+
+    @Override
+    protected final void call(final DbxClient client, final ProgressMonitor pm) throws DbxException {
+        pm.begin(1);
+        for (final File file : new DbxClientWrapper(client).getRevisions(path)) {
+            getLog().info(file.toString());
+        }
+    }
 }

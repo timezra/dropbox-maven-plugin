@@ -21,57 +21,76 @@
  */
 package timezra.dropbox.maven.plugin;
 
-import java.util.Map;
+import static java.util.Collections.singletonList;
 
-import org.apache.maven.plugin.MojoExecutionException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.json.simple.JSONValue;
 
-import com.dropbox.client2.DropboxAPI;
-import com.dropbox.client2.DropboxAPI.Entry;
-import com.dropbox.client2.exception.DropboxException;
-import com.dropbox.client2.session.Session;
+import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxEntry;
+import com.dropbox.core.DbxEntry.WithChildren;
+import com.dropbox.core.DbxException;
+import com.dropbox.core.util.Maybe;
 
 @Mojo(name = Metadata.API_METHOD)
 public class Metadata extends DropboxMojo {
 
     static final String API_METHOD = "metadata";
 
-    @Parameter(required = true)
+    @Parameter(required = true, property = "path")
     String path;
 
-    @Parameter
-    int file_limit = 10000;
+    // currently hard-coded to 25000
+    // @Parameter
+    // int file_limit = 25000;
 
-    @Parameter
+    @Parameter(property = "hash")
     String hash;
 
-    @Parameter
-    boolean list = true;
+    @Parameter(defaultValue = "true", property = "list")
+    boolean list;
 
-    @Parameter
-    String rev;
+    // currently not supported
+    // @Parameter
+    // String rev;
 
     public Metadata() {
         super(API_METHOD);
     }
 
-    Metadata(final DropboxFactory<? extends Session> dropboxFactory) {
+    Metadata(final DropboxFactory dropboxFactory) {
         super(API_METHOD, dropboxFactory);
     }
 
+    private Iterable<DbxEntry> from(final WithChildren metadata) {
+        final Collection<DbxEntry> entries = new ArrayList<>();
+        entries.add(metadata.entry);
+        if (metadata.children != null) {
+            entries.addAll(metadata.children);
+        }
+        return entries;
+    }
+
     @Override
-    protected final void call(final DropboxAPI<? extends Session> dropbox) throws MojoExecutionException {
-        try {
-            final Entry metadata = dropbox.metadata(path, file_limit, hash, list, rev);
-            final Map<?, ?> simplified = Simplifier.simplify(metadata);
-            if (simplified != null) {
-                simplified.remove("JsonExtractor");
-                getLog().info(JSONValue.toJSONString(simplified));
+    protected final void call(final DbxClient client, final ProgressMonitor pm) throws DbxException {
+        final Iterable<DbxEntry> entries;
+        pm.begin(1);
+        if (list) {
+            if (hash == null) {
+                entries = from(client.getMetadataWithChildren(path));
+            } else {
+                final Maybe<WithChildren> metadata = client.getMetadataWithChildrenIfChanged(path, hash);
+                entries = metadata.isNothing() ? Collections.<DbxEntry> emptyList() : from(metadata.getJust());
             }
-        } catch (final DropboxException | IllegalArgumentException | IllegalAccessException e) {
-            throw new DropboxMojoExecutionException(e);
+        } else {
+            entries = singletonList(client.getMetadata(path));
+        }
+        for (final DbxEntry entry : entries) {
+            getLog().info(entry.toString());
         }
     }
 }

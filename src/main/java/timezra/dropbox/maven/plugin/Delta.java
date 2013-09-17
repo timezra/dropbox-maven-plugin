@@ -21,14 +21,41 @@
  */
 package timezra.dropbox.maven.plugin;
 
-import java.util.Locale;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.dropbox.core.DbxClient;
-import com.dropbox.core.DbxRequestConfig;
+import com.dropbox.core.DbxDelta;
+import com.dropbox.core.DbxDelta.Entry;
+import com.dropbox.core.DbxEntry;
+import com.dropbox.core.DbxException;
 
-class DefaultDropboxFactory implements DropboxFactory {
+@Mojo(name = Delta.API_METHOD)
+public class Delta extends DropboxMojo {
+
+    static final String API_METHOD = "delta";
+
+    @Parameter(property = "cursor")
+    String cursor;
+
+    public Delta() {
+        super(API_METHOD);
+    }
+
+    Delta(final DropboxFactory dropboxFactory) {
+        super(API_METHOD, dropboxFactory);
+    }
+
     @Override
-    public DbxClient create(final String clientIdentifier, final String accessToken) {
-        return new DbxClient(new DbxRequestConfig(clientIdentifier, Locale.getDefault().toString()), accessToken);
+    protected final void call(final DbxClient client, final ProgressMonitor pm) throws DbxException {
+        pm.begin(1);
+        final DbxDelta<DbxEntry> delta = client.getDelta(cursor);
+        // we need to unroll this manually because of a NullPointerException when metadata is null
+        getLog().info("reset=" + delta.reset);
+        getLog().info("hasMore=" + delta.hasMore);
+        getLog().info("cursor=\"" + delta.cursor + "\"");
+        for (final Entry<DbxEntry> entry : delta.entries) {
+            getLog().info("(lcPath=\"" + entry.lcPath + "\", metadata=" + entry.metadata + ")");
+        }
     }
 }

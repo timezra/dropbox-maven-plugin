@@ -21,8 +21,44 @@
  */
 package timezra.dropbox.maven.plugin;
 
-import com.dropbox.core.DbxClient;
+import java.io.IOException;
 
-public interface DropboxFactory {
-    DbxClient create(final String clientIdentifier, final String accessToken);
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
+import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxException;
+import com.dropbox.core.DbxWriteMode;
+
+@Mojo(name = CommitChunkedUpload.API_METHOD)
+public class CommitChunkedUpload extends DropboxMojo {
+
+    static final String API_METHOD = "commit_chunked_upload";
+
+    @Parameter(required = true, property = "path")
+    String path;
+
+    @Parameter(defaultValue = "true", property = "overwrite")
+    boolean overwrite;
+
+    @Parameter(required = true, property = "upload_id")
+    String upload_id;
+
+    @Parameter(property = "parent_rev")
+    String parent_rev;
+
+    public CommitChunkedUpload() {
+        super(API_METHOD);
+    }
+
+    CommitChunkedUpload(final DropboxFactory dropboxFactory) {
+        super(API_METHOD, dropboxFactory);
+    }
+
+    @Override
+    protected final void call(final DbxClient client, final ProgressMonitor pm) throws IOException, DbxException {
+        pm.begin(1);
+        final DbxWriteMode writeMode = overwrite ? DbxWriteMode.force() : DbxWriteMode.update(parent_rev);
+        client.chunkedUploadFinish(path, writeMode, upload_id);
+    }
 }

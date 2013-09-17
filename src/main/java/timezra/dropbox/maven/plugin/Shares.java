@@ -21,8 +21,40 @@
  */
 package timezra.dropbox.maven.plugin;
 
-import com.dropbox.core.DbxClient;
+import static org.codehaus.plexus.util.StringUtils.defaultString;
 
-public interface DropboxFactory {
-    DbxClient create(final String clientIdentifier, final String accessToken);
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
+import timezra.dropbox.maven.plugin.client.DbxClientWrapper;
+
+import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxException;
+
+@Mojo(name = Shares.API_METHOD)
+public class Shares extends DropboxMojo {
+
+    static final String API_METHOD = "shares";
+
+    @Parameter(required = true, property = "path")
+    String path;
+
+    @Parameter(defaultValue = "true", property = "short_url")
+    boolean short_url;
+
+    public Shares() {
+        super(API_METHOD);
+    }
+
+    Shares(final DropboxFactory dropboxFactory) {
+        super(API_METHOD, dropboxFactory);
+    }
+
+    @Override
+    protected final void call(final DbxClient client, final ProgressMonitor pm) throws DbxException {
+        pm.begin(1);
+        getLog().info(
+                defaultString(new DbxClientWrapper(client).createShareableUrl(path, short_url),
+                        "no file or folder at that path"));
+    }
 }

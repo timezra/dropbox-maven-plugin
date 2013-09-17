@@ -1,18 +1,20 @@
 package timezra.dropbox.maven.plugin;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.matches;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static timezra.dropbox.maven.plugin.Constants.ACCESS_TOKEN;
-import static timezra.dropbox.maven.plugin.Constants.ACCESS_TOKEN_SECRET;
-import static timezra.dropbox.maven.plugin.Constants.ACCESS_TYPE;
-import static timezra.dropbox.maven.plugin.Constants.APP_KEY;
-import static timezra.dropbox.maven.plugin.Constants.APP_SECRET;
+import static timezra.dropbox.maven.plugin.Constants.CLIENT_IDENTIFIER;
+
+import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -20,67 +22,64 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import timezra.dropbox.maven.plugin.DropboxMojo.DropboxMojoExecutionException;
-
-import com.dropbox.client2.DropboxAPI;
-import com.dropbox.client2.session.AccessTokenPair;
-import com.dropbox.client2.session.AppKeyPair;
-import com.dropbox.client2.session.Session;
-import com.dropbox.client2.session.Session.AccessType;
+import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxException;
 
 @RunWith(MockitoJUnitRunner.class)
-public abstract class DropboxMojoTest<MOJO extends DropboxMojo> {
+public class DropboxMojoTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
-    private DropboxFactory<Session> dropboxFactory;
-
-    @Mock
-    protected DropboxAPI<Session> dropboxAPI;
+    private DropboxFactory dropboxFactory;
 
     @Mock
     protected Log log;
 
-    protected MOJO dropboxMojo;
+    protected DropboxMojo dropboxMojo;
 
-    protected abstract MOJO createDropboxMojo(DropboxFactory<Session> dropboxFactory);
+    protected DropboxMojo createDropboxMojo(final DropboxFactory dropboxFactory) {
+        return new DropboxMojo(Constants.API_METHOD, dropboxFactory) {
+            @Override
+            protected void call(final DbxClient client, final ProgressMonitor pm) throws IOException, DbxException {
+                pm.begin(1000);
+                pm.worked(10);
+                pm.done();
+            }
+        };
+    }
 
     @Before
     public final void setup() {
         dropboxMojo = createDropboxMojo(dropboxFactory);
-        dropboxMojo.oauth_consumer_key = APP_KEY;
-        dropboxMojo.oauth_signature = APP_SECRET;
-        dropboxMojo.oauth_token = ACCESS_TOKEN;
-        dropboxMojo.oauth_token_secret = ACCESS_TOKEN_SECRET;
-        dropboxMojo.root = ACCESS_TYPE.toString();
-
-        when(dropboxFactory.create(any(AppKeyPair.class), any(AccessTokenPair.class), any(AccessType.class))).thenReturn(
-                dropboxAPI);
+        dropboxMojo.setLog(log);
+        dropboxMojo.clientIdentifier = CLIENT_IDENTIFIER;
+        dropboxMojo.accessToken = ACCESS_TOKEN;
     }
 
     @Test
-    public final void should_create_a_new_session() throws MojoExecutionException, MojoFailureException {
+    public final void should_create_a_new_client() throws MojoExecutionException, MojoFailureException {
         dropboxMojo.execute();
 
-        verify(dropboxFactory).create(new AppKeyPair(APP_KEY, APP_SECRET),
-                new AccessTokenPair(ACCESS_TOKEN, ACCESS_TOKEN_SECRET), ACCESS_TYPE);
+        verify(dropboxFactory).create(CLIENT_IDENTIFIER, ACCESS_TOKEN);
     }
 
     @Test
-    public final void should_log_progress() {
-        dropboxMojo.setLog(log);
+    @Ignore
+    public final void should_log_if_verbose() throws MojoExecutionException, MojoFailureException, InterruptedException {
+        dropboxMojo.verbose = true;
+        dropboxMojo.execute();
 
-        dropboxMojo.progressListener.onProgress(10, 1000);
-        dropboxMojo.progressListener.onProgress(20, 1000);
-
-        verify(log).info(dropboxMojo.apiMethod + ": 10 of 1000 [1%]");
-        verify(log).info(dropboxMojo.apiMethod + ": 20 of 1000 [2%]");
+        verify(log).info(eq(dropboxMojo.apiMethod + ": starting"));
+        verify(log).info(matches(dropboxMojo.apiMethod + ": 10 of 1000 \\[\\d+%\\] \\[\\d+h:\\d+m:\\d+s left\\]"));
+        verify(log).info(matches(dropboxMojo.apiMethod + ": finished in \\d+h:\\d+m:\\d+s"));
     }
 
-    protected final void expectMojoException() {
-        expectedException.expect(DropboxMojoExecutionException.class);
-        expectedException.expectMessage("Unable to complete the Dropbox " + dropboxMojo.apiMethod + " request.");
+    @Test
+    public final void should_not_log_if_quiet() throws MojoExecutionException, MojoFailureException {
+        dropboxMojo.execute();
+
+        verify(log, never()).info(anyString());
     }
 }
