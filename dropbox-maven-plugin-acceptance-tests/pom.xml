@@ -50,6 +50,7 @@
         <gems-directory>${project.build.directory}/gems</gems-directory>
         <jruby-version>1.7.4</jruby-version>
         <cucumber-jvm-version>1.1.5</cucumber-jvm-version>
+        <local-repository>${project.build.directory}/local-repo</local-repository>
     </properties>
 
     <dependencies>
@@ -74,6 +75,7 @@
                 <version>1.0-alpha-2</version>
                 <executions>
                     <execution>
+                        <id>read-properties</id>
                         <phase>initialize</phase>
                         <goals>
                             <goal>read-project-properties</goal>
@@ -91,11 +93,12 @@
                 <artifactId>maven-invoker-plugin</artifactId>
                 <version>1.8</version>
                 <configuration>
-                    <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+                    <localRepositoryPath>${local-repository}</localRepositoryPath>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>pre-integration-test</id>
+                        <id>prepare-dependent-plugins</id>
+                        <phase>pre-integration-test</phase>
                         <goals>
                             <goal>install</goal>
                         </goals>
@@ -108,6 +111,7 @@
                 <version>${jruby-version}</version>
                 <executions>
                     <execution>
+                        <id>install-bundles</id>
                         <phase>pre-integration-test</phase>
                         <goals>
                             <goal>gem-install</goal>
@@ -135,8 +139,8 @@
                 </dependencies>
                 <executions>
                     <execution>
-                        <phase>integration-test</phase>
                         <id>run-cucumbers</id>
+                        <phase>integration-test</phase>
                         <goals>
                             <goal>jruby</goal>
                         </goals>
