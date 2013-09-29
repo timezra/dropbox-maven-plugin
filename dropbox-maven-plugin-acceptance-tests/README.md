@@ -18,4 +18,4 @@ In order to run these tests, you must create a file called config/dev.properties
     client_identifier=APPLICATION_IDENTIFIER
     access_token=ACCESS_TOKEN
 
-Where the APPLICATION\_IDENTIFIER looks like "your-dropbox-application-name/1.0" and the ACCESS\_TOKEN is the ACCESS\_TOKEN you requested above.
+Where the APPLICATION\_IDENTIFIER looks like "YOUR DROPBOX APPLICATION NAME/1.0" and the ACCESS\_TOKEN is the ACCESS\_TOKEN you requested above.
