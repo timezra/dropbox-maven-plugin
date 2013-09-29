@@ -18,7 +18,7 @@ And /^an access token '(.*)'$/ do |access_token|
 end
 
 When /^I ask for account information$/ do 
-  @output = `mvn -Dmaven.repo.local='${project.build.directory}/local-repo' timezra.maven:dropbox-maven-plugin:1.7.6-SNAPSHOT:info -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token}`
+  @output = `mvn -Dmaven.repo.local='${project.build.directory}/local-repo' timezra.maven:dropbox-maven-plugin:${project.version}:info -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token}`
 end
 
 Then /^I should see a userId and displayName$/ do
