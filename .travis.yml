@@ -3,7 +3,6 @@ language: java
 script: mvn -Dclient_identifier=$CLIENT_IDENTIFIER -Daccess_token=$ACCESS_TOKEN install
 env:
   global:
-  - GEM_HOME=$HOME/timezra/dropbox-maven-plugin/dropbox-maven-plugin-acceptance-tests/target/gems
   - secure: ! 'JzaUw5PVssh2kLuHo2qjLxSXGopcD5/GuxLG2GjVRIjEcdcpEoMDf7mf1nkE
 
       ZybMXNd4fOnYQXEKcftUGu3GCk2FDPT8pQknY+NaRtquFkyqjNJ73duYEwSw
