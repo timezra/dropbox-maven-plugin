@@ -1,6 +1,6 @@
 ---
 language: java
-script: mvn -Dclient_identifier=$CLIENT_IDENTIFIER -Daccess_token=$ACCESS_TOKEN install
+script: mvn -U -Dclient_identifier=$CLIENT_IDENTIFIER -Daccess_token=$ACCESS_TOKEN install
 env:
   global:
   - secure: ! 'JzaUw5PVssh2kLuHo2qjLxSXGopcD5/GuxLG2GjVRIjEcdcpEoMDf7mf1nkE
