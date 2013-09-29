@@ -1,0 +1,205 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>timezra.maven</groupId>
+    <artifactId>dropbox-maven-plugin-acceptance-tests</artifactId>
+    <version>1.7.6-SNAPSHOT</version>
+    <name>Dropbox Maven Plugin Acceptance Tests</name>
+    <url>https://github.com/timezra/dropbox-maven-plugin</url>
+
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>LICENSE</url>
+            <distribution>repo</distribution>
+            <comments>
+              The MIT License is a free software license originating
+                  at the Massachusetts Institute of Technology (MIT), used
+                  by the MIT X Consortium.
+            </comments>
+        </license>
+    </licenses>
+
+    <description>
+        The Maven Dropbox Plugin is a client library for interacting with the 
+        Dropbox Java SDK. It is MIT licensed. These are its acceptance tests.
+    </description>
+
+    <organization>
+        <name>SolutionsIQ</name>
+        <url>http://www.solutionsiq.com/</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>timezra</id>
+            <name>Tim Myer</name>
+            <email>TMyer@SolutionsIQ.com</email>
+            <url>http://github.com/timezra</url>
+            <organization>SolutionsIQ</organization>
+            <organizationUrl>http://www.solutionsiq.com/</organizationUrl>
+            <roles>
+                <role>programmer</role>
+            </roles>
+            <timezone>-8</timezone>
+        </developer>
+    </developers>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <gems-directory>${project.build.directory}/gems</gems-directory>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>timezra.maven</groupId>
+            <artifactId>dropbox-maven-plugin</artifactId>
+            <version>1.7.6-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jruby</groupId>
+            <artifactId>jruby-complete</artifactId>
+            <version>1.7.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>info.cukes</groupId>
+            <artifactId>cucumber-jruby</artifactId>
+            <version>1.1.5</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <testResources>
+            <testResource>
+                <directory>src/test/features</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0-alpha-2</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>config/dev.properties</file>
+                            </files>
+                            <quiet>true</quiet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-invoker-plugin</artifactId>
+                <version>1.8</version>
+                <configuration>
+                    <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <goals>
+                            <goal>install</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>timezra.maven</groupId>
+                <artifactId>jruby-maven-plugin</artifactId>
+                <version>1.7.4</version>
+                <executions>
+                    <execution>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>gem-install</goal>
+                            <goal>bundle-install</goal>
+                        </goals>
+                        <configuration>
+                            <gem_home>${gems-directory}</gem_home>
+                            <gem>bundler</gem>
+                            <gemfile>${project.basedir}/Gemfile</gemfile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>timezra.maven</groupId>
+                <artifactId>cucumber-jvm-maven-plugin</artifactId>
+                <version>1.1.5</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jruby</groupId>
+                        <artifactId>jruby-complete</artifactId>
+                        <version>1.7.4</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <phase>integration-test</phase>
+                        <id>run-cucumbers</id>
+                        <goals>
+                            <goal>jruby</goal>
+                        </goals>
+                        <configuration>
+                            <gem_home>${gems-directory}</gem_home>
+                            <feature>${project.build.testOutputDirectory}</feature>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.codehaus.mojo</groupId>
+                                        <artifactId>properties-maven-plugin</artifactId>
+                                        <versionRange>[1.0-alpha-2,)</versionRange>
+                                        <goals>
+                                            <goal>read-project-properties</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>tims-repo</id>
+            <url>http://timezra.github.com/maven/releases</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+</project>
+

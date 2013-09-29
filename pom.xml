@@ -2,11 +2,11 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>timezra.maven</groupId>
-    <artifactId>dropbox-maven-plugin</artifactId>
-    <packaging>maven-plugin</packaging>
+    <artifactId>dropbox-maven-plugin-aggregator</artifactId>
+    <packaging>pom</packaging>
     <version>1.7.6-SNAPSHOT</version>
-    <name>Dropbox Maven Plugin</name>
-    <url>http://maven.apache.org</url>
+    <name>Dropbox Maven Plugin Aggregator</name>
+    <url>https://github.com/timezra/dropbox-maven-plugin</url>
 
     <licenses>
         <license>
@@ -14,10 +14,10 @@
             <url>LICENSE</url>
             <distribution>repo</distribution>
             <comments>
-          The MIT License is a free software license originating
-              at the Massachusetts Institute of Technology (MIT), used
-              by the MIT X Consortium.
-        </comments>
+              The MIT License is a free software license originating
+                  at the Massachusetts Institute of Technology (MIT), used
+                  by the MIT X Consortium.
+            </comments>
         </license>
     </licenses>
 
@@ -49,105 +49,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    
+    <modules>
+        <module>dropbox-maven-plugin</module>
+        <module>dropbox-maven-plugin-acceptance-tests</module>
+    </modules>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.2</version>
-                <configuration>
-                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>mojo-descriptor</id>
-                        <goals>
-                            <goal>descriptor</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>help-goal</id>
-                        <goals>
-                            <goal>helpmojo</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <show>public</show>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-plugin-api</artifactId>
-            <version>3.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.plugin-tools</groupId>
-            <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.2</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-utils</artifactId>
-            <version>3.0.15</version>
-        </dependency>
-        <dependency>
-            <groupId>com.dropbox.core</groupId>
-            <artifactId>dropbox-core-sdk</artifactId>
-            <version>1.7.5</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>1.9.5</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 </project>
