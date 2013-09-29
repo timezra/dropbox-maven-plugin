@@ -1,2 +1,15 @@
+---
 language: java
+script: mvn -Dclient_identifier=$CLIENT_IDENTIFIER -Daccess_token=$ACCESS_TOKEN install
+env:
+  global:
+  - secure: ! 'JzaUw5PVssh2kLuHo2qjLxSXGopcD5/GuxLG2GjVRIjEcdcpEoMDf7mf1nkE
 
+      ZybMXNd4fOnYQXEKcftUGu3GCk2FDPT8pQknY+NaRtquFkyqjNJ73duYEwSw
+
+      7MEvC5b6yGZWvLvrnQ3e5+E3WAaozsT/qCZI9KY8ArNsN2hrW/8='
+  - secure: ! 'Kef0TmnK/o0TfgIZArVfRFZRkA5YoX9tkloFOtSyL4BBJAqw5n/I6N0LEXrb
+
+      JkC1+j7m+AnOoZ59KEj5wy97junBTNzdyrjg0fNyylEv2yLLoXwFAL82Dcxp
+
+      NEeddtu8YyYl2gCrSK1i1L81Qt5KRtEsS3WBivrTrtPOuaUYHsw='
