@@ -1,5 +1,9 @@
 ---
 language: java
+before_script:
+  - unset GEM_HOME
+  - unset GEM_PATH
+  - unset RUBY_VERSION
 script: mvn -Dclient_identifier=$CLIENT_IDENTIFIER -Daccess_token=$ACCESS_TOKEN install
 env:
   global:

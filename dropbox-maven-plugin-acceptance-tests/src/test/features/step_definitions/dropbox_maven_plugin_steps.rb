@@ -44,6 +44,15 @@ Then /^that folder should exist$/ do
   @output.should =~ /Folder\(\"#{@path}\"/
 end
 
+When /^I ask to get metadata for (.*)$/ do |path|
+  @path = path
+  @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:metadata -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path}`
+end
+
+Then /^Then I should see (.*) metadata$/ do |resourceType|
+  @output.should =~ /#{resourceType}\(\"#{@path}\"/
+end
+
 After('@creates_resource') do |s|
   `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:delete -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path}`
 end

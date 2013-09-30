@@ -19,3 +19,9 @@ Feature: Showcase the dropbox-maven-plugin integration
     When I ask to create a folder with path /subfolder
     Then that folder should exist
     
+  Scenario: Gets Metadata
+    When I ask to get metadata for /
+    Then I should see Folder metadata
+    
+    
+    
