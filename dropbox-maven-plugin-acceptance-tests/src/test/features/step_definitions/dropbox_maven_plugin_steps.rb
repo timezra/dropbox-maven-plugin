@@ -34,23 +34,28 @@ Then /^I should see a userId and displayName$/ do
   @output.should =~ /displayName/
 end
 
-When /^I ask to create a folder with path (.*)$/ do |path|
+When /^I ask to create a folder with path '(.*)'$/ do |path|
   @path = path
   `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:create_folder -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path}`
 end
 
-Then /^that folder should exist$/ do
+Then /^that (.*) should exist in dropbox$/ do |resourceType|
   @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:metadata -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path}`
-  @output.should =~ /Folder\(\"#{@path}\"/
+  @output.should =~ /#{resourceType.capitalize}\(\"#{@path}\"/
 end
 
-When /^I ask to get metadata for (.*)$/ do |path|
+When /^I ask to get metadata for '(.*)'$/ do |path|
   @path = path
   @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:metadata -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path}`
 end
 
 Then /^I should see (\w+) metadata$/ do |resourceType|
-  @output.should =~ /#{resourceType}\(\"#{@path}\"/
+  @output.should =~ /#{resourceType.capitalize}\(\"#{@path}\"/
+end
+
+When /^I ask to upload the file '(.*)' to '(.*)'$/ do |file, path|
+  @path = path
+  @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:files_put -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfile=#{file} -Dpath=#{@path}`
 end
 
 After('@creates_resource') do |s|
