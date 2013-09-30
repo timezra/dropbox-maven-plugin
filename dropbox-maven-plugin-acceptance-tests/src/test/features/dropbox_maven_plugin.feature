@@ -16,22 +16,22 @@ Feature: Showcase the dropbox-maven-plugin integration
 
   @creates_dropbox_resource
   Scenario: Creates a Folder
-    When I ask to create a folder with path '/subfolder'
+    When I create a folder with path '/subfolder'
     Then that folder should exist in dropbox
     
   Scenario: Gets Metadata
-    When I ask to get metadata for '/'
+    When I get metadata for '/'
     Then I should see Folder metadata
   
   @creates_dropbox_resource
   Scenario: Uploads a File
-    When I ask to upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
+    When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
     Then that file should exist in dropbox
     
   @creates_dropbox_resource
   @creates_local_resource
   Scenario: Gets a File
-    When I ask to upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
+    When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
     And I download the file to '${project.build.directory}/my_testfile.txt'
     Then that file should exist in the local file system
     
