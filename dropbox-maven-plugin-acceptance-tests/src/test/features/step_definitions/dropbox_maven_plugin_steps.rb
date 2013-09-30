@@ -66,6 +66,19 @@ And /^I delete that file from dropbox$/ do
   delete_from_dropbox @path
 end
 
+And /^I get the delta$/ do
+  @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:delta -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token}`
+  @cursor = @output.match(/cursor="(.*)"/)[1]
+end
+
+And /^I get the delta again$/ do
+  @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:delta -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dcursor="#{@cursor}"`
+end
+
+Then /^I should see that the file has been deleted$/ do
+  @output.should match(/\(lcPath="#{@path}", metadata=null\)/)
+end
+
 After('@creates_dropbox_resource') do |s|
   delete_from_dropbox @path
 end

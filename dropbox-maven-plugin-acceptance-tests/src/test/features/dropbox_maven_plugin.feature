@@ -10,12 +10,12 @@ Feature: Showcase the dropbox-maven-plugin integration
     And a client identifier '${client_identifier}'
     And an access token '${access_token}'
   
-  Scenario: Gets Info
+  Scenario: Gets Account Info
     When I ask for account information
     Then I should see a userId and displayName
 
   @creates_dropbox_resource
-  Scenario: Creates a Folder
+  Scenario: Creates a New Folder
     When I create a folder with path '/subfolder'
     Then that folder should exist in dropbox
     
@@ -24,7 +24,7 @@ Feature: Showcase the dropbox-maven-plugin integration
     Then I should see Folder metadata
   
   @creates_dropbox_resource
-  Scenario: Uploads a File
+  Scenario: Uploads a New File
     When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
     Then that file should exist in dropbox
     
@@ -40,5 +40,10 @@ Feature: Showcase the dropbox-maven-plugin integration
     And I delete that file from dropbox
     Then that file should not exist in dropbox
     
-    
+  Scenario: Gets a Delta
+    When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
+    And I get the delta
+    And I delete that file from dropbox
+    And I get the delta again
+    Then I should see that the file has been deleted
     
