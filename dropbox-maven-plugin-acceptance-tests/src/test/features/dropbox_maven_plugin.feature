@@ -34,6 +34,11 @@ Feature: Showcase the dropbox-maven-plugin integration
     When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
     And I download the file to '${project.build.directory}/my_testfile.txt'
     Then that file should exist in the local file system
+  
+  Scenario: Deletes a File
+    When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
+    And I delete that file from dropbox
+    Then that file should not exist in dropbox
     
     
     
