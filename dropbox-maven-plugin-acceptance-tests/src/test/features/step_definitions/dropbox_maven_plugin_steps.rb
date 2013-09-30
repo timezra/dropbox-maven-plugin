@@ -49,7 +49,7 @@ When /^I ask to get metadata for (.*)$/ do |path|
   @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:metadata -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path}`
 end
 
-Then /^Then I should see (.*) metadata$/ do |resourceType|
+Then /^I should see (\w+) metadata$/ do |resourceType|
   @output.should =~ /#{resourceType}\(\"#{@path}\"/
 end
 
