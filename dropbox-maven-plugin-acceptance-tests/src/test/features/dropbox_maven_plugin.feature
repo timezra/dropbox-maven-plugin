@@ -21,7 +21,7 @@ Feature: Showcase the dropbox-maven-plugin integration
     
   Scenario: Gets Metadata
     When I get metadata for '/'
-    Then I should see Folder metadata
+    Then I should see folder metadata
   
   @creates_dropbox_resource
   Scenario: Uploads a New File
@@ -46,4 +46,10 @@ Feature: Showcase the dropbox-maven-plugin integration
     And I delete that file from dropbox
     And I get the delta again
     Then I should see that the file has been deleted
+    
+  @creates_dropbox_resource
+  Scenario: Gets Revisions
+    When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
+    And I get revisions for the file
+    Then I should see its revisions
     

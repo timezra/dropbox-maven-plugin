@@ -36,7 +36,7 @@ end
 
 Then /^that (\w+) (should|should not) exist in dropbox$/ do |resourceType, should_or_should_not|
   @output = get_metadata_from_dropbox @path
-  @output.send _(should_or_should_not), match(/#{resourceType.capitalize}\(\"#{@path}\"/)
+  @output.send _(should_or_should_not), match(/^\[INFO\] #{resourceType.capitalize}\("#{@path}"/)
 end
 
 When /^I get metadata for '(.*)'$/ do |path|
@@ -45,7 +45,7 @@ When /^I get metadata for '(.*)'$/ do |path|
 end
 
 Then /^I should see (\w+) metadata$/ do |resourceType|
-  @output.should match(/#{resourceType.capitalize}\(\"#{@path}\"/)
+  @output.should match(/^\[INFO\] #{resourceType.capitalize}\("#{@path}"/)
 end
 
 When /^I upload the file '(.*)' to '(.*)'$/ do |file, path|
@@ -68,7 +68,7 @@ end
 
 And /^I get the delta$/ do
   @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:delta -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token}`
-  @cursor = @output.match(/cursor="(.*)"/)[1]
+  @cursor = @output.match(/^\[INFO\] cursor="(.*)"$/)[1]
 end
 
 And /^I get the delta again$/ do
@@ -76,7 +76,15 @@ And /^I get the delta again$/ do
 end
 
 Then /^I should see that the file has been deleted$/ do
-  @output.should match(/\(lcPath="#{@path}", metadata=null\)/)
+  @output.should match(/^\[INFO\] \(lcPath="#{@path}", metadata=null\)$/)
+end
+
+And /^I get revisions for the file$/ do
+  @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:revisions -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path}`
+end
+
+Then /^I should see its revisions$/ do
+  @output.should match(/^\[INFO\] File\("#{@path}"/)
 end
 
 After('@creates_dropbox_resource') do |s|
