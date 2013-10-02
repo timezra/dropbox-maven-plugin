@@ -44,7 +44,7 @@ When /^I get metadata for '(.*)'$/ do |path|
   @output = get_metadata_from_dropbox @path
 end
 
-Then /^I should see (\w+) metadata$/ do |resourceType|
+Then /^I should see (?:the )?(\w+) metadata$/ do |resourceType|
   @output.should match(/^\[INFO\] #{resourceType.capitalize}\("#{@path}"/)
 end
 
@@ -91,6 +91,10 @@ And /^I restore that file's previous revision$/ do
   @output = get_revisions_from_dropbox @path
   rev = @output.scan(/^\[INFO\] File\("#{@path}"(?:.*)rev="(\w+)"\)$/)[1][0]
   `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:restore -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath="#{@path}" -Drev=#{rev}`
+end
+
+And /^I search for '(.*)' in '(.*)'$/ do |query, search_path|
+  @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:search -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dquery=#{query} -Dpath="#{search_path}"`
 end
 
 After('@creates_dropbox_resource') do |s|

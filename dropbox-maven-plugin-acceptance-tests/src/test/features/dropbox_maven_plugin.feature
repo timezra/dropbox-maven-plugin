@@ -60,3 +60,8 @@ Feature: Showcase the dropbox-maven-plugin integration
     And I restore that file's previous revision
     Then that file should exist in dropbox
     
+  @creates_dropbox_resource
+  Scenario: Searches For a File
+    When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
+    And I search for 'test' in '/'
+    Then I should see the file metadata
