@@ -1,5 +1,6 @@
 #encoding: utf-8
 
+require "open-uri"
 require 'cucumber/api/jruby/en'
 require 'rspec/expectations'
 World(RSpec::Matchers)
@@ -21,7 +22,7 @@ And /^an access token '(.*)'$/ do |access_token|
 end
 
 When /^I ask for account information$/ do 
-  @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:info -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token}`
+  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:info -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token}`
 end
 
 Then /^I should see a userId and displayName$/ do
@@ -31,7 +32,7 @@ end
 
 When /^I create a folder with path '(.*)'$/ do |path|
   @path = path
-  `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:create_folder -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path}`
+  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:create_folder -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path}`
 end
 
 Then /^that (\w+) (should|should not) exist in dropbox$/ do |resourceType, should_or_should_not|
@@ -50,12 +51,12 @@ end
 
 When /^I upload the file '(.*)' to '(.*)'$/ do |file, path|
   @path = path
-  @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:files_put -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfile=#{file} -Dpath=#{@path}`
+  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:files_put -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfile=#{file} -Dpath=#{@path}`
 end
 
 And /^I download the file to '(.*)'$/ do |file|
   @file = file
-  @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:files -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfile=#{@file} -Dpath=#{@path}`
+  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:files -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfile=#{@file} -Dpath=#{@path}`
 end
 
 Then /^that file should exist in the local file system$/ do
@@ -67,12 +68,12 @@ And /^I delete that file from dropbox$/ do
 end
 
 And /^I get the delta$/ do
-  @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:delta -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token}`
+  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:delta -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token}`
   @cursor = @output.match(/^\[INFO\] cursor="(.*)"$/)[1]
 end
 
 And /^I get the delta again$/ do
-  @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:delta -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dcursor="#{@cursor}"`
+  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:delta -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dcursor="#{@cursor}"`
 end
 
 Then /^I should see that the file has been deleted$/ do
@@ -90,11 +91,20 @@ end
 And /^I restore that file's previous revision$/ do
   @output = get_revisions_from_dropbox @path
   rev = @output.scan(/^\[INFO\] File\("#{@path}"(?:.*)rev="(\w+)"\)$/)[1][0]
-  `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:restore -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath="#{@path}" -Drev=#{rev}`
+  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:restore -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath="#{@path}" -Drev=#{rev}`
 end
 
 And /^I search for '(.*)' in '(.*)'$/ do |query, search_path|
-  @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:search -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dquery=#{query} -Dpath="#{search_path}"`
+  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:search -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dquery=#{query} -Dpath="#{search_path}"`
+end
+
+And /^I share it$/ do
+  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:shares -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath="#{@path}"`
+  @share = @output.match(/^\[INFO\] (https:\/\/db\.tt\/\w+)$/)[1]
+end
+
+Then /^I should see a file preview$/ do
+  open(@share).status[0].should == "200"
 end
 
 After('@creates_dropbox_resource') do |s|
@@ -110,13 +120,13 @@ def _ (words)
 end
 
 def get_revisions_from_dropbox (resource)
-  `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:revisions -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{resource}`
+  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:revisions -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{resource}`
 end
 
 def get_metadata_from_dropbox (resource)
-  `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:metadata -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{resource}`
+  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:metadata -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{resource}`
 end
 
 def delete_from_dropbox (resource)
-  `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:delete -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{resource}`
+  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:delete -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{resource}`
 end

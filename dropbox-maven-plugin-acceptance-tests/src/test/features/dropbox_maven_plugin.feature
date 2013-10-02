@@ -65,3 +65,10 @@ Feature: Showcase the dropbox-maven-plugin integration
     When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
     And I search for 'test' in '/'
     Then I should see the file metadata
+    
+  @creates_dropbox_resource
+  Scenario: Shares a File
+    When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
+    And I share it
+    Then I should see a file preview
+    
