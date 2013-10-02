@@ -52,4 +52,11 @@ Feature: Showcase the dropbox-maven-plugin integration
     When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
     And I get revisions for the file
     Then I should see its revisions
+
+  @creates_dropbox_resource
+  Scenario: Restores a File
+    When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
+    And I delete that file from dropbox
+    And I restore that file's previous revision
+    Then that file should exist in dropbox
     

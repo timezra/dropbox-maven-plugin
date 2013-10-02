@@ -80,11 +80,17 @@ Then /^I should see that the file has been deleted$/ do
 end
 
 And /^I get revisions for the file$/ do
-  @output = `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:revisions -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path}`
+  @output = get_revisions_from_dropbox @path
 end
 
 Then /^I should see its revisions$/ do
-  @output.should match(/^\[INFO\] File\("#{@path}"/)
+  @output.should match(/^\[INFO\] File\("#{@path}"(?:.*)rev="(\w+)"\)$/)
+end
+
+And /^I restore that file's previous revision$/ do
+  @output = get_revisions_from_dropbox @path
+  rev = @output.scan(/^\[INFO\] File\("#{@path}"(?:.*)rev="(\w+)"\)$/)[1][0]
+  `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:restore -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath="#{@path}" -Drev=#{rev}`
 end
 
 After('@creates_dropbox_resource') do |s|
@@ -97,6 +103,10 @@ end
 
 def _ (words)
   words.gsub(' ', '_').to_sym
+end
+
+def get_revisions_from_dropbox (resource)
+  `mvn -Dmaven.repo.local=#{@repo} #{@plugin}:revisions -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{resource}`
 end
 
 def get_metadata_from_dropbox (resource)
