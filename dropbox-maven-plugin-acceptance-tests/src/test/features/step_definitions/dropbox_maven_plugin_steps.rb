@@ -50,8 +50,9 @@ Then /^I should see (?:the )?(\w+) metadata$/ do |resourceType|
 end
 
 When /^I upload the file '(.*)' to '(.*)'$/ do |file, path|
+  @file = file
   @path = path
-  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:files_put -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfile=#{file} -Dpath=#{@path}`
+  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:files_put -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfile=#{@file} -Dpath=#{@path}`
 end
 
 And /^I download the file to '(.*)'$/ do |file|
@@ -105,6 +106,15 @@ end
 
 Then /^I should see a file preview$/ do
   open(@share).status[0].should == "200"
+end
+
+And /^I stream it$/ do
+  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:media -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath="#{@path}"`
+  @media = @output.match(/^\[INFO\] url=(https:\/\/dl\.dropboxusercontent\.com\/.+)$/)[1]
+end
+
+Then /^I should get the file contents$/ do
+  open(@media).read.should == IO.read(@file)
 end
 
 After('@creates_dropbox_resource') do |s|

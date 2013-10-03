@@ -72,3 +72,9 @@ Feature: Showcase the dropbox-maven-plugin integration
     And I share it
     Then I should see a file preview
     
+  @creates_dropbox_resource
+  Scenario: Streams a File
+    When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
+    And I stream it
+    Then I should get the file contents
+    
