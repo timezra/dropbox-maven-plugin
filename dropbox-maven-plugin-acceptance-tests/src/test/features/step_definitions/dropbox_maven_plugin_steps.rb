@@ -35,14 +35,14 @@ When /^I create a folder with path '(.*)'$/ do |path|
   `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:create_folder -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path}`
 end
 
-Then /^that (file|folder) (should|should not) exist in dropbox$/ do |resourceType, should_or_should_not|
+Then /^(?:the|that) (?:original )?(file|folder) (should|should not) exist in dropbox$/ do |resourceType, should_or_should_not|
   @output = get_metadata_from_dropbox @path
   @output.send _(should_or_should_not), match(/^\[INFO\] #{resourceType.capitalize}\("#{@path}"/)
 end
 
-Then /^that copy should exist in dropbox$/ do
-  @output = get_metadata_from_dropbox @copy
-  @output.should match(/^\[INFO\] File\("#{@copy}"/)
+Then /^that (?:copy|moved file) should exist in dropbox$/ do
+  @output = get_metadata_from_dropbox @to_path
+  @output.should match(/^\[INFO\] File\("#{@to_path}"/)
 end
 
 When /^I get metadata for '(.*)'$/ do |path|
@@ -127,9 +127,19 @@ And /^I get a copy reference for it$/ do
   @copy_ref = @output.match(/^\[INFO\] copy_ref=(\w+)$/)[1]
 end
 
-And /^I copy the reference to '(.*)'$/ do |copy|
-  @copy = copy
-  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:copy -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfrom_copy_ref=#{@copy_ref} -Dto_path="#{@copy}"`
+And /^I copy the reference to '(.*)'$/ do |to_path|
+  @to_path = to_path
+  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:copy -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfrom_copy_ref=#{@copy_ref} -Dto_path="#{@to_path}"`
+end
+
+And /^I copy it to '(.*)'$/ do |to_path|
+  @to_path = to_path
+  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:copy -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfrom_path=#{@path} -Dto_path="#{@to_path}"`
+end
+
+And /^I move it to '(.*)'$/ do |to_path|
+  @to_path = to_path
+  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:move -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfrom_path=#{@path} -Dto_path="#{@to_path}"`
 end
 
 After('@creates_dropbox_resource') do |s|
@@ -137,7 +147,7 @@ After('@creates_dropbox_resource') do |s|
 end
 
 After('@creates_copied_dropbox_resource') do |s|
-  delete_from_dropbox @copy
+  delete_from_dropbox @to_path
 end
 
 After('@creates_local_resource') do |s|
@@ -159,3 +169,26 @@ end
 def delete_from_dropbox (resource)
   `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:delete -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{resource}`
 end
+
+
+# ##############################################################################
+# Copyright (c) 2013 timezra
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+# ##############################################################################

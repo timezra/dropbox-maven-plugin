@@ -1,4 +1,5 @@
 #encoding: utf-8
+ 
 Feature: Showcase the dropbox-maven-plugin integration
   In order to verify that the dropbox-maven-plugin works
   As someone who wants to interact with dropbox through maven 
@@ -85,4 +86,39 @@ Feature: Showcase the dropbox-maven-plugin integration
     And I get a copy reference for it
     And I copy the reference to '/copied_testfile.txt'
     Then that copy should exist in dropbox
+     
+  @creates_dropbox_resource
+  @creates_copied_dropbox_resource
+  Scenario: Copies From a File
+    When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
+    And I copy it to '/copied_testfile.txt'
+    Then that copy should exist in dropbox
     
+  @creates_copied_dropbox_resource
+  Scenario: Moves a File
+    When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
+    And I move it to '/moved_testfile.txt'
+    Then that moved file should exist in dropbox
+    And the original file should not exist in dropbox
+    
+# ##############################################################################
+# Copyright (c) 2013 timezra
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+# ##############################################################################
