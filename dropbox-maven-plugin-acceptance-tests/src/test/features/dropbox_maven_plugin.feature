@@ -78,3 +78,11 @@ Feature: Showcase the dropbox-maven-plugin integration
     And I stream it
     Then I should get the file contents
     
+  @creates_dropbox_resource
+  @creates_copied_dropbox_resource
+  Scenario: Copies From a Reference
+    When I upload the file '${project.build.testOutputDirectory}/testfile.txt' to '/testfile.txt'
+    And I get a copy reference for it
+    And I copy the reference to '/copied_testfile.txt'
+    Then that copy should exist in dropbox
+    

@@ -35,9 +35,14 @@ When /^I create a folder with path '(.*)'$/ do |path|
   `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:create_folder -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path}`
 end
 
-Then /^that (\w+) (should|should not) exist in dropbox$/ do |resourceType, should_or_should_not|
+Then /^that (file|folder) (should|should not) exist in dropbox$/ do |resourceType, should_or_should_not|
   @output = get_metadata_from_dropbox @path
   @output.send _(should_or_should_not), match(/^\[INFO\] #{resourceType.capitalize}\("#{@path}"/)
+end
+
+Then /^that copy should exist in dropbox$/ do
+  @output = get_metadata_from_dropbox @copy
+  @output.should match(/^\[INFO\] File\("#{@copy}"/)
 end
 
 When /^I get metadata for '(.*)'$/ do |path|
@@ -45,7 +50,7 @@ When /^I get metadata for '(.*)'$/ do |path|
   @output = get_metadata_from_dropbox @path
 end
 
-Then /^I should see (?:the )?(\w+) metadata$/ do |resourceType|
+Then /^I should see (?:the )?(file|folder) metadata$/ do |resourceType|
   @output.should match(/^\[INFO\] #{resourceType.capitalize}\("#{@path}"/)
 end
 
@@ -117,8 +122,22 @@ Then /^I should get the file contents$/ do
   open(@media).read.should == IO.read(@file)
 end
 
+And /^I get a copy reference for it$/ do
+  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:copy_ref -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath="#{@path}"`
+  @copy_ref = @output.match(/^\[INFO\] copy_ref=(\w+)$/)[1]
+end
+
+And /^I copy the reference to '(.*)'$/ do |copy|
+  @copy = copy
+  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:copy -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfrom_copy_ref=#{@copy_ref} -Dto_path="#{@copy}"`
+end
+
 After('@creates_dropbox_resource') do |s|
   delete_from_dropbox @path
+end
+
+After('@creates_copied_dropbox_resource') do |s|
+  delete_from_dropbox @copy
 end
 
 After('@creates_local_resource') do |s|
