@@ -101,6 +101,13 @@ Feature: Showcase the dropbox-maven-plugin integration
     Then that moved file should exist in dropbox
     And the original file should not exist in dropbox
     
+  @creates_dropbox_resource
+  @creates_local_resource
+  Scenario: Gets a Thumbnail
+    When I upload the file '${project.build.testOutputDirectory}/testimage.png' to '/testimage.png'
+    And I ask for a png thumbnail at '${project.build.directory}/my_thumbnail.png'
+    Then that file should exist in the local file system
+    
 # ##############################################################################
 # Copyright (c) 2013 timezra
 # 

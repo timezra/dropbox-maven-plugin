@@ -142,6 +142,11 @@ And /^I move it to '(.*)'$/ do |to_path|
   `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:move -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfrom_path=#{@path} -Dto_path="#{@to_path}"`
 end
 
+And /^I ask for a (.*) thumbnail at '(.*)'$/ do |format, file|
+  @file = file
+  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:thumbnails -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path} -Dfile="#{@file}" -Dformat="#{format}"`
+end
+
 After('@creates_dropbox_resource') do |s|
   delete_from_dropbox @path
 end
