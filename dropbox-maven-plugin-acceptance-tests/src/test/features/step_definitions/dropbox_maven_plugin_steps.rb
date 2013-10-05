@@ -35,12 +35,12 @@ When /^I create a folder with path '(.*)'$/ do |path|
   `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:create_folder -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path}`
 end
 
-Then /^(?:the|that) (?:original )?(file|folder) (should|should not) exist in dropbox$/ do |resourceType, should_or_should_not|
+Then /^(?:the|that) (?:original )?(file|folder) (should|should not) be in dropbox$/ do |resourceType, should_or_should_not|
   @output = get_metadata_from_dropbox @path
   @output.send _(should_or_should_not), match(/^\[INFO\] #{resourceType.capitalize}\("#{@path}"/)
 end
 
-Then /^that (?:copy|moved file) should exist in dropbox$/ do
+Then /^that (?:copy|moved file) should be in dropbox$/ do
   @output = get_metadata_from_dropbox @to_path
   @output.should match(/^\[INFO\] File\("#{@to_path}"/)
 end
@@ -145,6 +145,22 @@ end
 And /^I ask for a (.*) thumbnail at '(.*)'$/ do |format, file|
   @file = file
   `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:thumbnails -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path} -Dfile="#{@file}" -Dformat="#{format}"`
+end
+
+When /^I upload the first (\d+) bytes of the file '(.*)'$/ do |chunkSize, file|
+  @file = file
+  @offset = chunkSize
+  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:chunked_upload -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -DchunkSize=#{chunkSize} -Dfile=#{@file}`
+  @upload_id = @output.match(/^\[INFO\] upload_id=(\.*)$/)[1]
+end
+
+And /^upload the rest of the file$/ do
+  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:chunked_upload -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfile=#{@file} -Dupload_id="#{@upload_id}" -Doffset=#{@offset}`
+end
+
+And /^commit the upload to '(.*)'$/ do |path|
+  @path = path
+  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:commit_chunked_upload -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dupload_id="#{@upload_id}" -Dpath="#{@path}"`
 end
 
 After('@creates_dropbox_resource') do |s|
