@@ -151,7 +151,7 @@ When /^I upload the first (\d+) bytes of the file '(.*)'$/ do |chunkSize, file|
   @file = file
   @offset = chunkSize
   @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:chunked_upload -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -DchunkSize=#{chunkSize} -Dfile=#{@file}`
-  @upload_id = @output.match(/^\[INFO\] upload_id=(\.*)$/)[1]
+  @upload_id = @output.match(/^\[INFO\] upload_id=(.*)$/)[1]
 end
 
 And /^upload the rest of the file$/ do
