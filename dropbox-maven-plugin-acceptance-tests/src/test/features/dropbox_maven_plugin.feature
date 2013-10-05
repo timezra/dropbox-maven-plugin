@@ -111,7 +111,8 @@ Feature: Showcase the dropbox-maven-plugin integration
   @creates_dropbox_resource
   Scenario: Uploads a File In Multiple Chunks
     When I upload the first 1000 bytes of the file '${project.build.testOutputDirectory}/testimage.png'
-    And upload the rest of the file to '/testfile.txt'
+    And upload the rest of the file
+    And commit the upload to '/testimage.png'
     Then that file should be in dropbox
     
 # ##############################################################################
