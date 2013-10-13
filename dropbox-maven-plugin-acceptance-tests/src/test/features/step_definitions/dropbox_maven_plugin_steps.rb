@@ -21,8 +21,8 @@ And /^an access token '(.*)'$/ do |access_token|
   @access_token = access_token
 end
 
-When /^I ask for account information$/ do 
-  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:info -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token}`
+When /^I ask for account information$/ do
+  @output = mvn('info', {})
 end
 
 Then /^I should see a userId and displayName$/ do
@@ -32,7 +32,7 @@ end
 
 When /^I create a folder with path '(.*)'$/ do |path|
   @path = path
-  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:create_folder -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path}`
+  mvn('create_folder', { 'path' => @path })
 end
 
 Then /^(?:the|that) (?:original )?(file|folder) (should|should not) be in dropbox$/ do |resourceType, should_or_should_not|
@@ -57,12 +57,12 @@ end
 When /^I upload the file '(.*)' to '(.*)'$/ do |file, path|
   @file = file
   @path = path
-  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:files_put -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfile=#{@file} -Dpath=#{@path}`
+  @output = mvn('files_put', { 'file' => @file, 'path' => @path })
 end
 
 And /^I download the file to '(.*)'$/ do |file|
   @file = file
-  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:files -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfile=#{@file} -Dpath=#{@path}`
+  @output = mvn('files', { 'file' => @file, 'path' => @path })
 end
 
 Then /^that file should exist in the local file system$/ do
@@ -74,12 +74,12 @@ And /^I delete that file from dropbox$/ do
 end
 
 And /^I get the delta$/ do
-  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:delta -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token}`
+  @output = mvn('delta', { 'access_token' => @access_token })
   @cursor = @output.match(/^\[INFO\] cursor="(.*)"$/)[1]
 end
 
 And /^I get the delta again$/ do
-  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:delta -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dcursor="#{@cursor}"`
+  @output = mvn('delta', { 'cursor' => @cursor })
 end
 
 Then /^I should see that the file has been deleted$/ do
@@ -97,15 +97,15 @@ end
 And /^I restore that file's previous revision$/ do
   @output = get_revisions_from_dropbox @path
   rev = @output.scan(/^\[INFO\] File\("#{@path}"(?:.*)rev="(\w+)"\)$/)[1][0]
-  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:restore -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath="#{@path}" -Drev=#{rev}`
+  mvn('restore', { 'path' => @path, 'rev' => rev })
 end
 
 And /^I search for '(.*)' in '(.*)'$/ do |query, search_path|
-  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:search -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dquery=#{query} -Dpath="#{search_path}"`
+  @output = mvn('search', { 'query' => query, 'path' => search_path })
 end
 
 And /^I share it$/ do
-  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:shares -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath="#{@path}"`
+  @output = mvn('shares', { 'path' => @path })
   @share = @output.match(/^\[INFO\] (https:\/\/db\.tt\/\w+)$/)[1]
 end
 
@@ -114,7 +114,7 @@ Then /^I should see a file preview$/ do
 end
 
 And /^I stream it$/ do
-  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:media -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath="#{@path}"`
+  @output = mvn('media', { 'path' => @path })
   @media = @output.match(/^\[INFO\] url=(https:\/\/dl\.dropboxusercontent\.com\/.+)$/)[1]
 end
 
@@ -123,44 +123,44 @@ Then /^I should get the file contents$/ do
 end
 
 And /^I get a copy reference for it$/ do
-  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:copy_ref -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath="#{@path}"`
+  @output = mvn('copy_ref', { 'path' => @path })
   @copy_ref = @output.match(/^\[INFO\] copy_ref=(\w+)$/)[1]
 end
 
 And /^I copy the reference to '(.*)'$/ do |to_path|
   @to_path = to_path
-  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:copy -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfrom_copy_ref=#{@copy_ref} -Dto_path="#{@to_path}"`
+  mvn('copy', { 'from_copy_ref' => @copy_ref, 'to_path' => @to_path })
 end
 
 And /^I copy it to '(.*)'$/ do |to_path|
   @to_path = to_path
-  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:copy -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfrom_path=#{@path} -Dto_path="#{@to_path}"`
+  mvn('copy', { 'from_path' => @path, 'to_path' => @to_path })
 end
 
 And /^I move it to '(.*)'$/ do |to_path|
   @to_path = to_path
-  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:move -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfrom_path=#{@path} -Dto_path="#{@to_path}"`
+  mvn('move', { 'from_path' => @path, 'to_path' => @to_path })
 end
 
 And /^I ask for a (.*) thumbnail at '(.*)'$/ do |format, file|
   @file = file
-  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:thumbnails -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{@path} -Dfile="#{@file}" -Dformat="#{format}"`
+  mvn('thumbnails', { 'path' => @path, 'file' => @file, 'format' => format })
 end
 
-When /^I upload the first (\d+) bytes of the file '(.*)'$/ do |chunkSize, file|
+When /^I upload the first (\d+) bytes of the file '(.*)'$/ do |chunk_size, file|
   @file = file
-  @offset = chunkSize
-  @output = `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:chunked_upload -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -DchunkSize=#{chunkSize} -Dfile=#{@file}`
+  @offset = chunk_size
+  @output = mvn('chunked_upload', { 'file' => @file, 'chunkSize' => chunk_size })
   @upload_id = @output.match(/^\[INFO\] upload_id=(.*)$/)[1]
 end
 
 And /^upload the rest of the file$/ do
-  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:chunked_upload -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dfile=#{@file} -Dupload_id="#{@upload_id}" -Doffset=#{@offset}`
+  mvn('chunked_upload', { 'file' => @file, 'upload_id' => @upload_id, 'offset' => @offset })
 end
 
 And /^commit the upload to '(.*)'$/ do |path|
   @path = path
-  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:commit_chunked_upload -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dupload_id="#{@upload_id}" -Dpath="#{@path}"`
+  mvn('commit_chunked_upload', { 'path' => @path, 'upload_id' => @upload_id })
 end
 
 After('@creates_dropbox_resource') do |s|
@@ -180,15 +180,25 @@ def _ (words)
 end
 
 def get_revisions_from_dropbox (resource)
-  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:revisions -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{resource}`
+  mvn('revisions', { 'path' => resource })
 end
 
 def get_metadata_from_dropbox (resource)
-  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:metadata -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{resource}`
+  mvn('metadata', { 'path' => resource })
 end
 
 def delete_from_dropbox (resource)
-  `mvn -N -B -Dmaven.repo.local=#{@repo} #{@plugin}:delete -DclientIdentifier="#{@client_identifier}" -DaccessToken=#{@access_token} -Dpath=#{resource}`
+  mvn('delete', { 'path' => resource })
+end
+
+def mvn (goal, params)
+  params['maven.repo.local'] = @repo
+  params['clientIdentifier'] = @client_identifier
+  params['accessToken'] = @access_token
+  command = params.reduce("mvn -N -B #{@plugin}:#{goal}") {|s, (k, v)|
+    s + " -D#{k}=\"#{v}\""
+  }
+  `#{command}`
 end
 
 
