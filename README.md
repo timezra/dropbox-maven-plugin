@@ -1,4 +1,4 @@
-dropbox-maven-plugin
+dropbox-maven-plugin [![Build Status](https://travis-ci.org/timezra/dropbox-maven-plugin.png)](https://travis-ci.org/timezra/dropbox-maven-plugin)
 ====================================================
 
 This project provides a bridge between maven and the dropbox-core-sdk for Java <https://www.dropbox.com/developers/core/sdks/java>
